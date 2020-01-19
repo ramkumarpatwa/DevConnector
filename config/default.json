@@ -1,0 +1,4 @@
+// to declare global variable which will be used in entire project
+{
+  "mongoURI": "mongodb+srv://ram123:ram123@devconnector-zz6r1.mongodb.net/test?retryWrites=true&w=majority"
+}
