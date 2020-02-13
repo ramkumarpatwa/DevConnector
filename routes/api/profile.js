@@ -9,10 +9,12 @@ const config = require('config');
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
+const Post = require('../../models/Post');
 
-//@route   GET api/profile/me
-//@desc    Get current users profile
-//@access  Private
+
+// @route    GET api/profile/me
+// @desc     Get current users profile
+// @access   Private
 router.get('/me', auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({
@@ -22,17 +24,17 @@ router.get('/me', auth, async (req, res) => {
     if (!profile) {
       return res.status(400).json({ msg: 'There is no profile for this user' });
     }
+
     res.json(profile);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('server error');
+    res.status(500).send('Server Error');
   }
 });
 
-//@route   POST api/profile/
-//@desc    Create or update user profile
-//@access  Private
-
+// @route    POST api/profile
+// @desc     Create or update user profile
+// @access   Private
 router.post(
   '/',
   [
@@ -41,21 +43,18 @@ router.post(
       check('status', 'Status is required')
         .not()
         .isEmpty(),
-      check('skills', 'skills are required')
+      check('skills', 'Skills is required')
         .not()
         .isEmpty()
     ]
   ],
   async (req, res) => {
-    //we need both auth and validation for this route
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      //if error will be there
       return res.status(400).json({ errors: errors.array() });
     }
 
     const {
-      //pull everything out from the body
       company,
       website,
       location,
@@ -70,10 +69,10 @@ router.post(
       linkedin
     } = req.body;
 
-    //Build profilefield object to insert into db
+    // Build profile object
     const profileFields = {};
     profileFields.user = req.user.id;
-    if (company) profileFields.company = company; //if stuff is actually coming in then assign it in profilefiled's company
+    if (company) profileFields.company = company;
     if (website) profileFields.website = website;
     if (location) profileFields.location = location;
     if (bio) profileFields.bio = bio;
@@ -83,7 +82,7 @@ router.post(
       profileFields.skills = skills.split(',').map(skill => skill.trim());
     }
 
-    //Build Social Object
+    // Build social object
     profileFields.social = {};
     if (youtube) profileFields.social.youtube = youtube;
     if (twitter) profileFields.social.twitter = twitter;
@@ -92,22 +91,12 @@ router.post(
     if (instagram) profileFields.social.instagram = instagram;
 
     try {
-      let profile = await Profile.findOne({ user: req.user.id }); //whenever we use mongoose method we need to add AWAIT in front of it as it return promise
-      if (profile) {
-        //if profile found then update it
-        //update
-        profile = await Profile.findOneAndUpdate(
-          { user: req.user.id },
-          { $set: profileFields },
-          { new: true }
-        );
-        return res.json(profile); //send back the profile as response
-      }
-
-      //create profile if not found
-      profile = new Profile(profileFields);
-
-      await profile.save();
+      // Using upsert option (creates new doc if no match is found):
+      let profile = await Profile.findOneAndUpdate(
+        { user: req.user.id },
+        { $set: profileFields },
+        { new: true, upsert: true }
+      );
       res.json(profile);
     } catch (err) {
       console.error(err.message);
@@ -116,20 +105,18 @@ router.post(
   }
 );
 
-//@route   GET api/profile
-//@desc    Get all profiles
-//@access  PUblic
+// @route    GET api/profile
+// @desc     Get all profiles
+// @access   Public
 router.get('/', async (req, res) => {
   try {
     const profiles = await Profile.find().populate('user', ['name', 'avatar']);
-
     res.json(profiles);
   } catch (err) {
-    console.error('err.message');
+    console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
-
 //@route   POST api/profile/user/:user_id
 //@desc    Get profile by user ID
 //@access  PUblic
@@ -155,7 +142,9 @@ router.get('/user/:user_id', async (req, res) => {
 //@access  PUblic
 router.delete('/', auth, async (req, res) => {
   try {
-    //@todo - remvoe users posts
+    //remvoe users posts
+
+    await Post.deleteMany({user:req.user.id})
 
     //Remove profile
 
