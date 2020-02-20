@@ -1,0 +1,8 @@
+// to declare global variable which will be used in entire project
+{
+    "mongoURI": "mongodb+srv://ram123:ram123@devconnector-zz6r1.mongodb.net/test?retryWrites=true&w=majority",
+    "jwtSecret": "mysecrettoken",
+    "githubClientId": "fc936075b547cec00f44",
+    "githubSecret": "f33528c2422b95068481c7a8db5eaf3214d008f3"
+  }
+  
