@@ -14,6 +14,8 @@ import EditProfile from './components/profile-form/EditProfile'
 import AddExperience from './components/profile-form/AddExperience'
 import AddEducation from './components/profile-form/AddEducation'
 import PrivateRoute from './components/routing/PrivateRoute'
+import Profiles from './components/profiles/Profiles'
+import Profile from './components/profile/Profile'
 import {loadUser} from './actions/auth';
 import setAuthToken from './utils/setAuthToken';
 
@@ -39,10 +41,13 @@ const App = ()=>{
   <section className="container">
   <Alert/>
     <Switch>
-      <Route exact path="/Register" component={Register}/>
-      <Route exact path="/Login" component={Login}/>
+      <Route exact path="/register" component={Register}/>
+      <Route exact path="/login" component={Login}/>
+      <Route exact path="/profiles" component={Profiles }/>
+      <Route exact path="/profile/:id" component={Profile }/>
       <PrivateRoute exact path="/dashboard" component={Dashboard}/>
       <PrivateRoute exact path="/create-profile" component={CreateProfile}/>
+
       <PrivateRoute exact path="/edit-profile" component={EditProfile}/>
       <PrivateRoute exact path="/add-experience" component={AddExperience}/>
       <PrivateRoute exact path="/add-education" component={AddEducation}/>
